@@ -30,7 +30,7 @@ Implementation using C or pyhton code
 
 
 ## PROGRAM:
-PROGRAM:
+
 ```
 #include <stdio.h>
 #include <string.h>
@@ -77,7 +77,6 @@ void main()
 
 ```
 ## OUTPUT:
-OUTPUT:
 
 ![Screenshot 2025-03-18 142450](https://github.com/user-attachments/assets/42fac8f9-29d9-4039-af6e-428927e80bea)
 
