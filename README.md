@@ -123,55 +123,149 @@ To decrypt, use the INVERSE (opposite) of the last 3 rules, and the 1st as-is (d
 
 ## PROGRAM:
 ```
-#include<stdio.h>
-#include<conio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#define MX 5
+
+void encryptPair(char ch1, char ch2, char key[MX][MX])
+{
+    int i, j, row1 = -1, col1 = -1, row2 = -1, col2 = -1;
+    for (i = 0; i < MX; i++)
+    {
+        for (j = 0; j < MX; j++)
+        {
+            if (key[i][j] == ch1)
+            {
+                row1 = i;
+                col1 = j;
+            }
+            else if (key[i][j] == ch2)
+            {
+                row2 = i;
+                col2 = j;
+            }
+        }
+    }
+    if (row1 == row2)
+        printf("%c%c", key[row1][(col1 + 1) % 5], key[row2][(col2 + 1) % 5]);
+    else if (col1 == col2)
+        printf("%c%c", key[(row1 + 1) % 5][col1], key[(row2 + 1) % 5][col2]);
+    else
+        printf("%c%c", key[row1][col2], key[row2][col1]);
+}
+
+void decryptPair(char ch1, char ch2, char key[MX][MX])
+{
+    int i, j, row1 = -1, col1 = -1, row2 = -1, col2 = -1;
+    for (i = 0; i < MX; i++)
+    {
+        for (j = 0; j < MX; j++)
+        {
+            if (key[i][j] == ch1)
+            {
+                row1 = i;
+                col1 = j;
+            }
+            else if (key[i][j] == ch2)
+            {
+                row2 = i;
+                col2 = j;
+            }
+        }
+    }
+    if (row1 == row2)
+        printf("%c%c", key[row1][(col1 + 4) % 5], key[row2][(col2 + 4) % 5]);
+    else if (col1 == col2)
+        printf("%c%c", key[(row1 + 4) % 5][col1], key[(row2 + 4) % 5][col2]);
+    else
+        printf("%c%c", key[row1][col2], key[row2][col1]);
+}
+
 int main()
 {
-    unsigned int a[3][3]={{6,24,1},{13,16,10},{20,17,15}};
-    unsigned int b[3][3]={{8,5,10},{21,8,21},{21,12,8}};
-    int i,j, t=0;
-    unsigned int c[20],d[20];
-    char msg[20];
-    printf("Enter plain text");
-    scanf("%s",msg);
-    for(i=0;i<strlen(msg);i++)
+    int i, j, k = 0, m = 0;
+    char key[MX][MX], keyminus[25], keystr[25], plaintext[100];
+    char alpha[26] = "ABCDEFGHIKLMNOPQRSTUVWXYZ";
+
+    printf("Simulating Playfair Cipher\n");
+    printf("Key text: ");
+    fgets(keystr, sizeof(keystr), stdin);
+    keystr[strcspn(keystr, "\n")] = 0;
+
+    printf("Plain text: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+    plaintext[strcspn(plaintext, "\n")] = 0;
+
+    for (i = 0; i < strlen(keystr); i++)
     {
-        c[i]=msg[i]-65;
-        printf("%d ",c[i]);
+        if (tolower(keystr[i]) == 'j')
+            keystr[i] = 'I';
+        keystr[i] = toupper(keystr[i]);
     }
-    for(i=0;i<3;i++)
+
+    for (i = 0; i < strlen(plaintext); i++)
     {
-        t=0;
-        for(j=0;j<3;j++)
+        if (tolower(plaintext[i]) == 'j')
+            plaintext[i] = 'I';
+        plaintext[i] = toupper(plaintext[i]);
+    }
+
+    int n = strlen(keystr), found;
+    for (i = 0; i < 25; i++)
+    {
+        found = 0;
+        for (j = 0; j < n; j++)
         {
-            t=t+(a[i][j]*c[j]);
+            if (keystr[j] == alpha[i])
+            {
+                found = 1;
+                break;
+            }
         }
-        d[i]=t%26;
+        if (!found)
+            keyminus[m++] = alpha[i];
     }
-    printf("\nEncrypted Cipher Text :");
-    for(i=0;i<3;i++)
-    printf(" %c",d[i]+65);
-    for(i=0;i<3;i++)
+
+    k = 0;
+    m = 0;
+    for (i = 0; i < MX; i++)
     {
-        t=0;
-        for(j=0;j<3;j++)
+        for (j = 0; j < MX; j++)
         {
-            t=t+(b[i][j]*d[j]);
+            if (k < n)
+                key[i][j] = keystr[k++];
+            else
+                key[i][j] = keyminus[m++];
         }
-        c[i]=t%26;
     }
-    printf("\nDecrypted Cipher Text :");
-    for(i=0;i<3;i++)
-    printf(" %c",c[i]+65);
-    getch();
+
+    printf("Cipher text: ");
+    for (i = 0; i < strlen(plaintext); i++)
+    {
+        if (plaintext[i + 1] == '\0')
+        {
+            encryptPair(plaintext[i], 'X', key);
+        }
+        else if (plaintext[i] == plaintext[i + 1])
+        {
+            encryptPair(plaintext[i], 'X', key);
+        }
+        else
+        {
+            encryptPair(plaintext[i], plaintext[i + 1], key);
+            i++;
+        }
+    }
+
+    printf("\nDecrypted text: %s\n", plaintext);
     return 0;
 }
 ```
 
 ## OUTPUT:
 
-![Screenshot 2025-03-19 081321](https://github.com/user-attachments/assets/39fd53fc-0f53-4afc-a168-866ef4b98c44)
+![Screenshot 2025-03-24 102740](https://github.com/user-attachments/assets/a058e0b5-4525-48b6-8c4b-c89e78043ac9)
 
 ## RESULT:
 The program is executed successfully
@@ -206,56 +300,56 @@ The cipher can, be adapted to an alphabet with any number of letters. All arithm
 
 
 ## PROGRAM:
-PROGRAM:
-#include <stdio.h> #include <string.h>
-int keymat[3][3] = { { 1, 2, 1 }, { 2, 3, 2 }, { 2, 2, 1 } };
-int invkeymat[3][3] = { { -1, 0, 1 }, { 2, -1, 0 }, { -2, 2, -1 } }; char key[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-char encode(char a, char b, char c) { char ret[4];
-int x, y, z;
-int posa = (int) a - 65; int posb = (int) b - 65; int posc = (int) c - 65;
-x = posa * keymat[0][0] + posb * keymat[1][0] + posc * keymat[2][0];
-y = posa * keymat[0][1] + posb * keymat[1][1] + posc * keymat[2][1];
-z = posa * keymat[0][2] + posb * keymat[1][2] + posc * keymat[2][2]; ret[0] = key[x % 26];
-ret[1] = key[y % 26]; ret[2] = key[z % 26]; ret[3] = '\0';
-return ret;
+```
+#include<stdio.h>
+#include<string.h>
+int main()
+{
+    unsigned int a[3][3]={{6,24,1},{13,16,10},{20,17,15}};
+    unsigned int b[3][3]={{8,5,10},{21,8,21},{21,12,8}};
+    int i,j, t=0;
+    unsigned int c[20],d[20];
+    char msg[20];
+    printf("Enter plain text :");
+    scanf("%s",msg);
+    for(i=0;i<strlen(msg);i++)
+    {
+        c[i]=msg[i]-65;
+        printf("%d ",c[i]);
+    }
+    for(i=0;i<3;i++)
+    {
+        t=0;
+        for(j=0;j<3;j++)
+        {
+            t=t+(a[i][j]*c[j]);
+        }
+        d[i]=t%26;
+    }
+    printf("\nEncrypted Cipher Text :");
+    for(i=0;i<3;i++)
+    printf(" %c",d[i]+65);
+    for(i=0;i<3;i++)
+    {
+        t=0;
+        for(j=0;j<3;j++)
+        {
+            t=t+(b[i][j]*d[j]);
+        }
+        c[i]=t%26;
+    }
+    printf("\nDecrypted Cipher Text :");
+    for(i=0;i<3;i++)
+    printf(" %c",c[i]+65);
+    getchar();
+    return 0;
 }
-char decode(char a, char b, char c) { char ret[4];
-int x, y, z;
-int posa = (int) a - 65; int posb = (int) b - 65; int posc = (int) c - 65;
- 
-x = posa * invkeymat[0][0] + posb * invkeymat[1][0] + posc * invkeymat[2][0];y = posa * invkeymat[0][1] + posb * invkeymat[1][1] + posc * invkeymat[2][1];z = posa
-* invkeymat[0][2] + posb * invkeymat[1][2] + posc * invkeymat[2][2];ret[0] = key[(x % 26 < 0) ? (26 + x % 26) : (x % 26)];
-ret[1] = key[(y % 26 < 0) ? (26 + y % 26) : (y % 26)];
-ret[2] = key[(z % 26 < 0) ? (26 + z % 26) : (z % 26)];
-ret[3] = '\0'; return ret;
-}
-int main() { char msg[1000];
-char enc[1000] = ""; char dec[1000] = ""; int n;
-strcpy(msg, "SecurityLaboratory"); printf("Simulation of Hill Cipher\n"); printf("Input message : %s\n", msg); for (int i = 0; i < strlen(msg); i++) { msg[i] = toupper(msg[i]);
-}
-// Remove spaces
-n = strlen(msg) % 3;
-// Append padding text X if (n != 0) {
-for (int i = 1; i <= (3 - n); i++) {
-strcat(msg, "X");
-}
-}
-printf("Padded message : %s\n", msg); for (int i = 0; i < strlen(msg); i += 3) { char a = msg[i];
-char b = msg[i + 1]; char c = msg[i + 2];
-strcat(enc, encode(a, b, c));
-}
-printf("Encoded message : %s\n", enc); for (int i = 0; i < strlen(enc); i += 3) { char a = enc[i];
-char b = enc[i + 1]; char c = enc[i + 2];
-strcat(dec, decode(a, b, c));
- 
-}
-printf("Decoded message : %s\n", dec); return 0;
-}
-
+```
 
 ## OUTPUT:
 
-![image](https://github.com/user-attachments/assets/50c545a4-2eaa-45cc-b200-9dacab633729)
+![Screenshot 2025-03-24 103624](https://github.com/user-attachments/assets/e4a875a8-e327-4335-b12c-1863509bac36)
+
 
 ## RESULT:
 The program is executed successfully
