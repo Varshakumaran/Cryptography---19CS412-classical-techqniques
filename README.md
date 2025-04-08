@@ -301,54 +301,92 @@ The cipher can, be adapted to an alphabet with any number of letters. All arithm
 
 ## PROGRAM:
 ```
-#include<stdio.h>
-#include<string.h>
-int main()
-{
-    unsigned int a[3][3]={{6,24,1},{13,16,10},{20,17,15}};
-    unsigned int b[3][3]={{8,5,10},{21,8,21},{21,12,8}};
-    int i,j, t=0;
-    unsigned int c[20],d[20];
-    char msg[20];
-    printf("Enter plain text :");
-    scanf("%s",msg);
-    for(i=0;i<strlen(msg);i++)
-    {
-        c[i]=msg[i]-65;
-        printf("%d ",c[i]);
-    }
-    for(i=0;i<3;i++)
-    {
-        t=0;
-        for(j=0;j<3;j++)
-        {
-            t=t+(a[i][j]*c[j]);
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
+void encipher();
+void decipher();
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\n1. ENCRYPT TEXT");
+        printf("\t2. DECRYPED TEXT");
+        printf("\t3. EXIT");
+        printf("\n\nENTER YOUR CHOICE: ");
+        scanf("%d", &choice);
+        getchar(); // Consume newline character after scanf
+        
+        if (choice == 3)
+        { 
+            printf("\nEXIT\n");
+            return 0;
         }
-        d[i]=t%26;
+        else if (choice == 1)
+            encipher();
+        else if (choice == 2)
+            decipher();
+        else
+            printf("PLEASE ENTER A VALID OPTION.\n");
     }
-    printf("\nEncrypted Cipher Text :");
-    for(i=0;i<3;i++)
-    printf(" %c",d[i]+65);
-    for(i=0;i<3;i++)
-    {
-        t=0;
-        for(j=0;j<3;j++)
-        {
-            t=t+(b[i][j]*d[j]);
+}
+
+void encipher() {
+    unsigned int i, j;
+    char input[50], key[10];
+    printf("\nENCRYPTION\n");
+
+    printf("\nENTER PLAIN TEXT: ");
+    scanf("%49s", input); // Prevent buffer overflow
+
+    printf("\nENTER KEY VALUE: ");
+    scanf("%9s", key); // Prevent buffer overflow
+
+    printf("\nRESULTANT CIPHER TEXT: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0; // Reset key index if it exceeds the key length
         }
-        c[i]=t%26;
+        printf("%c", 65 + (((toupper(input[i]) - 65) + (toupper(key[j]) - 65)) % 26)); // Encryption formula
     }
-    printf("\nDecrypted Cipher Text :");
-    for(i=0;i<3;i++)
-    printf(" %c",c[i]+65);
-    getchar();
-    return 0;
+    printf("\n"); // New line after output
+}
+
+void decipher() {
+    unsigned int i, j;
+    char input[50], key[10];
+    int value;
+    printf("\nDECRYPTION\n");
+
+    printf("\nENTER CIPHER TEXT: ");
+    scanf("%49s", input); // Prevent buffer overflow
+
+    printf("\nENTER THE KEY VALUE: ");
+    scanf("%9s", key); // Prevent buffer overflow
+
+    printf("\nDECRYPTED PLAIN TEXT: ");
+    for (i = 0, j = 0; i < strlen(input); i++, j++) {
+        if (j >= strlen(key)) {
+            j = 0; // Reset key index if it exceeds the key length
+        }
+        // Decryption formula
+        value = (toupper(input[i]) - 65) - (toupper(key[j]) - 65);
+        if (value < 0) {
+            value += 26; // Correct the negative wrap-around in the alphabet
+        }
+        printf("%c", 65 + (value % 26));
+    }
+    printf("\n"); // New line after output
 }
 ```
 
 ## OUTPUT:
 
-![Screenshot 2025-03-24 103624](https://github.com/user-attachments/assets/e4a875a8-e327-4335-b12c-1863509bac36)
+![Screenshot 2025-04-08 230559](https://github.com/user-attachments/assets/ec793bf6-bb4c-459f-8769-e18137fe02e2)
+
+![Screenshot 2025-04-08 230617](https://github.com/user-attachments/assets/9039f555-1455-4b3b-91f5-a65f1bbaadad)
 
 
 ## RESULT:
